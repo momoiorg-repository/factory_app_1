@@ -1,0 +1,59 @@
+#! /bin/bash
+
+CONTAINER_NAME="isaac-sim-ws"
+
+stop_container() {
+	# コンテナが存在するかチェック
+	if ! docker ps -a --format "table {{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    	echo "❌ コンテナ ${CONTAINER_NAME} が見つかりません。"
+    	exit 1
+	fi
+
+	# コンテナが実行中かチェック
+	if docker ps --format "table {{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    		echo "🛑 コンテナ ${CONTAINER_NAME} を停止しています..."
+    		docker stop ${CONTAINER_NAME}
+
+    		if [ $? -eq 0 ]; then
+        		echo "✅ コンテナが停止されました。"
+    		else
+        		echo "❌ コンテナの停止に失敗しました。"
+        		exit 1
+    		fi
+	fi
+}
+
+delete_container() {
+	# コンテナを削除して完全初期化
+	echo "🗑️  コンテナ ${CONTAINER_NAME} を削除しています..."
+	docker rm ${CONTAINER_NAME}
+
+	if [ $? -eq 0 ]; then
+    		echo "✅ コンテナが削除され、完全に初期化されました。"
+    		echo ""
+    		echo "🚀 新しいコンテナを開始するには:"
+    		echo "   ./run_isaac_sim_docker.sh"
+	else
+    		echo "❌ コンテナの削除に失敗しました。"
+    		exit 1
+	fi
+}
+
+docker_connect () {
+	docker exec -it ${CONTAINER_NAME} /bin/bash
+}
+
+case "$1" in
+  run)
+	$FACTORY_BASE/at_factory/run_isaac_sim_docker.sh ;;
+  start)
+	docker start ${CONTAINER_NAME}
+	docker_connect
+	;;
+  con)
+        docker_connect ;;
+  stop)
+	stop_container ;;
+  rm)
+	delete_container ;;
+esac
