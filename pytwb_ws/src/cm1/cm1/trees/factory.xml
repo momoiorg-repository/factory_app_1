@@ -1,0 +1,54 @@
+<!-- add 9/28 -->
+<root>
+    <BehaviorTree ID="task_flow">
+    <Sequence name="main">
+        <!--1. Move to worpiece rack-->
+        <GoToPosefromDict name="goto_pos" pos="rack_workpiece"/>
+        <MatchAngleGoal name="match_angle_goal" goal="rack_workpiece"/>
+        <Home name="home" gripper_anger="[130]"/>
+        <Open name="open"/>
+        <!--2. target determination-->
+        <DetermineTarget name="determine_target" target="work"/>
+        <!--target coordinates change-->
+        <TransCoordinates name="trans_coordinates" mode="all"/>
+        <!--3. Approach the target-->
+        <ApproachAction name="approach_action" flag="True"/>
+        <Home name="home" gripper_anger="[110]"/>
+        <!--4. Fine tuning-->
+        <DetermineTarget name="determine_target" target="work"/>
+        <TransCoordinates name="trans_doordinates" mode="all"/>
+        <!--5. Pick up the target-->
+        <MoveToPose name="move_to_pose" diff="[0.02]" flag="[False]"/>
+        <Close name="close"/>
+        <Home name="home" gripper_anger="[90]"/> 
+        <!--6. Move to Machining Center-->
+        <MiniWalk name="mini_walk_times" time="[30]" back="[True]" high_speed="[True]"/>
+        <FaceBodyGoal name="face_body_goal" goal="machining_center"/>
+        <GoToPosefromDict name="goto_pos" pos="machining_center"/>
+        <MatchAngleGoal name="match_angle_goal" goal="machining_center"/>
+        <!--7. Place the target-->
+        <GetGoalPos name="get_goal_pos" goal="machining_center" pos="[True]"/>
+        <TransCoordinates name="trans_coordinates" mode="base_link"/>
+        <ApproachAction name="approach_action" flag="True"/>
+        <MatchAngleGoal name="match_angle_goal" goal="machining_center"/>
+        <GetGoalPos name="get_goal_pos" goal="machining_center" pos="[True]"/>
+        <TransCoordinates name="trans_coordinates" mode="base_link"/>
+        <EulerToQuat name='euler_to_quat' roll="[0]" pitch="[180]" yaw="[-90]"/>
+        <MoveToPose name="move_to_pose" diff="[0]" flag="[True]"/>
+
+        <Sleep name="sleep" time="[20]"/>
+        <!--demo2-->
+        <Home name="home" gripper_anger="[90]"/>
+        <MiniWalk name="mini_walk_times" time="[150]" back="[True]" high_speed="[True]"/>
+        <FaceBodyGoal name="face_body_goal" goal="rack_product"/>
+        <GoToPosefromDict name="goto_pos" pos="rack_product"/>
+        <MatchAngleGoal name="match_angle_goal" goal="rack_product"/>
+        <GetGoalPos name="get_goal_pos" goal="rack_product" pos="[True]"/>
+        <TransCoordinates name="trans_coordinates" mode="base_link"/>
+        <ApproachAction name="approach_action" flag="True"/>
+        <PlaceProduct name="place_product"/>
+        <Open name="open"/>
+        <Home name="home" gripper_anger="[90]"/>
+    </Sequence>
+    </BehaviorTree>
+</root>

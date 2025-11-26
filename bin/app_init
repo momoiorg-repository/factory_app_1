@@ -1,0 +1,97 @@
+# docker compose -f build/pc-compose.yaml build
+# docker compose -f build/pc-compose.yaml up
+
+#!/bin/bash
+set -e
+
+# 1. build docker image
+build_docker_image(){
+    if docker images | grep -q "factory_app.*latest"; then
+        echo "Dockerイメージ 'factory_app:latest' は既に存在します。"
+        read -p "再ビルドしますか？ (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "既存のイメージでコンテナを起動します..."
+            return
+        fi
+    fi
+    
+    echo "Building Docker image..."
+    docker build -t factory_app:latest -f ./build/Dockerfile .
+    
+    if docker images | grep -q "factory_app.*latest"; then
+        echo "Dockerイメージ 'factory_app:latest' は正常にビルドされました。"
+    else
+        echo "Dockerイメージ 'factory_app:latest' のビルドに失敗しました。"
+        exit 1
+    fi
+}
+
+# 2. run docker container
+run_docker_container(){
+    if [ -f .env ]; then
+        export $(grep -v '^#' .env | xargs)
+    fi
+
+    if docker ps -a --filter "name=^${CONTAINER_NAME:-factory_app}$" --format "{{.Names}}" | grep -q "^${CONTAINER_NAME:-factory_app}$"; then
+        echo "Dockerコンテナ '${CONTAINER_NAME:-factory_app}' は既に作成されています。"
+        return
+    fi
+
+    echo "Dockerコンテナを起動します..."
+    docker run -d \
+        --name ${CONTAINER_NAME:-factory_app} \
+        --network host \
+        --ipc host \
+        -e DISPLAY=${DISPLAY} \
+        -e NVIDIA_VISIBLE_DEVICES=all \
+        -e NVIDIA_DRIVER_CAPABILITIES=all \
+        -e ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-80} \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+        -v $HOME/.Xauthority:/root/.Xauthority:ro \
+        -v ./pytwb_ws:/root/pytwb_ws:rw \
+        --gpus all \
+        --tty \
+        factory_app:latest \
+        tail -f /dev/null
+}
+
+connect_to_container(){
+  if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+  fi
+
+  if ! docker ps --filter "name=^${CONTAINER_NAME:-factory_app}$" --format "{{.Names}}" | grep -q "^${CONTAINER_NAME:-factory_app}$"; then
+    echo "Dockerコンテナ '${CONTAINER_NAME:-factory_app}' は起動していません。"
+    echo "コンテナを起動します..."
+    docker start ${CONTAINER_NAME:-factory_app}
+  fi
+
+  echo "Dockerコンテナ '${CONTAINER_NAME:-factory_app}' に接続します..."
+  docker exec -it ${CONTAINER_NAME:-factory_app} bash
+}
+
+comment(){
+    echo "================================"
+    echo "初めて実行する場合は以下を実行してください"
+    echo "$ cd pytwb_ws"
+    echo "$ pytwb"
+    echo "> create cm1"
+    echo "> Y"
+    echo "exit"
+    echo "================================"
+    echo "ActorやBTを実行する場合は、以下を実行してください"
+    echo "$ actor"
+    echo "================================"
+}
+
+main(){
+  build_docker_image
+  run_docker_container
+  comment
+  connect_to_container
+}
+
+main "$@"
+
+

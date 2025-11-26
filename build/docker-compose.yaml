@@ -1,0 +1,28 @@
+services:
+  factory_app:
+    container_name: factory_app
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+      args:
+        ROS_DISTRO: humble
+    network_mode: host
+    ipc: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_DOMAIN_ID=80
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - $HOME/.Xauthority:/root/.Xauthority:ro
+      - ../pytwb_ws:/root/pytwb_ws:rw
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
