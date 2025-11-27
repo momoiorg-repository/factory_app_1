@@ -1,61 +1,82 @@
-# Robot@Factory
+# Application Sample for @factory
 
-## 概要
-`Robot@Factory`は、Isaac Simを使用した工場環境でのロボットシミュレーションをサポートするプロジェクトです。<br>
-このリポジトリには、Melonロボットを制御するActorおよびBehavior Treeが含まれています。
+@factory is a research and development platform for physical AI that allows for the simulation of small-scale factories and the various machine tools and robots operating there on NVIDIA Isaac Sim. By connecting robot control programs (hereinafter referred to as applications) using physical AI to this via the ROS protocol, users can develop and test them in a virtual factory. Factory configurations and robot definitions are built using a plug-in structure, allowing them to be freely replacing different implementations.
 
----
+This repository shows an example of an @factory application that runs using specific factory and robot definitions. At runtime, it consists of two docker containers: the @factory itself and an application with a Behavior Tree structure. The docker container (isaac-sim-ws, main docker container) that runs the @factory itself can be easily started with single command.
 
-## 使用方法
+The other docker, which runs applications (Application docker), is designed to be run by VSCode to make development easier.
 
-### 1. リポジトリのクローン
-以下のコマンドを実行してリポジトリをクローンします。
+## ◯ Installation
+The script you run will differ depending on whether you're installing docker for the first time or using an existing docker installation.
 
-```shell
-git clone http://192.168.128.23/satoya_sugimoto/factory_app.git
-cd factory_app
+### * If you're installing docker for the first time on the server(run only once)
+
+Create a working directory before proceeding.
+
+```
+mkdir factory
+cd factory
+git clone https://github.com/momoiorg-repository/factory_app_1.git
+./factory_app_1/init.sh
 ```
 
-### 2. Dockerの起動
-Dockerコンテナの名前やROS_DOMAIN_IDは`.env`ファイルでカスタムできます。
+This will build and start the main docker container, and a prompt from shell in the docker will appear.
 
-```shell
-# .envファイルの例
-ROS_DOMAIN_ID=80                      # ROSドメインID（デフォルト: 80）
+### *If the main docker container is already running on the server (run only once)
 
-CONTAINER_NAME=factory_app            # コンテナ名（デフォルト: factory_app)
+This assumes that the main docker container is already running.
+
+```
+git clone https://github.com/momoiorg-repository/factory_app_1.git
+./factory_app_1/attach.sh
 ```
 
-変更できたら次のコマンドを実行してDockerコンテナを起動します。
+This completes the connection to the main docker and a prompt from shell in the docker appears.
 
-```bash
-build/pc.sh
+Installation is now complete.
+
+When installation is complete, the PATH variable is rewritten automatically, allowing you to use the “fct” command to operate the main docker. After installation, open another shell session on the server and enter
+
+```
+fct
+```
+to display instructions. You can run, start, stop, connect, and perform other operations on the main docker.
+
+## ◯ Launching Isaac Sim in the main docker container
+
+With the main Docker container shell prompt displayed, execute the command to launch Isaac Sim, which runs @factory:
+
+```
+run_world
 ```
 
-これで、`.env`ファイルで指定した名前のDockerが起動します。Xウィンドウは表示されません。  
+This will launch Isaac Sim and enable WebRTC connections. Specify the server's IP address to connect.
 
-## 推奨環境
-VSCodeを使用して、Remote ExplorerからDockerにアタッチすることを推奨します。
+## ◯ Building the application docker
 
-1. VSCodeのターミナルを開き、以下のコマンドを実行します。
+Use a separate shell session on the server.
 
-```shell
+```
+cd factory/factory_app_1/build
+docker compose build
+docker compose up
+```
+
+This will launch the application docker. From now on, attach it from VSCode and use it. Assume the current directory is /root.
+
+From the VSCode terminal, execute the following command once:
+
+```
 cd pytwb_ws
 pytwb
 > create cm1
 > Y
 ```
-を実行します。  
 
-2. 上記の手順を完了後、以下のコマンドでActorおよびBehavior Treeを使用できます。
+The application to be executed is launched by pytwb. pytwb is run by executing
 
-```shell
-actor
+```
+pytwb_ws/src/cm1/cm1/app_main.py
 ```
 
----
-
-## 注意事項
-- Dockerコンテナは自動で停止しないため、使用後は手動で停止してください。
-- 2回目以降は、Dockerが起動していなくても、VSCode内で直接`docker attach`を実行することで、VSCodeがDockerを起動します。
-
+from VSCode. If necessary, you can run the entire application program in debug mode by launching pytwb in debug mode.
