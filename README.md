@@ -9,7 +9,7 @@ The other docker, which runs applications (Application docker), is designed to b
 ## ◯ Installation
 The script you run will differ depending on whether you're installing docker for the first time or using an existing docker installation.
 
-### * If you're installing docker for the first time on the server(run only once)
+### * If you're installing the main docker for the first time on the server(run only once)
 
 Create a working directory before proceeding.
 
@@ -22,7 +22,7 @@ git clone https://github.com/momoiorg-repository/factory_app_1.git
 
 This will build and start the main docker container, and a prompt from shell in the docker will appear.
 
-### *If the main docker container is already running on the server (run only once)
+### * If the main docker container is already running on the server (run only once)
 
 This assumes that the main docker container is already running.
 
