@@ -43,17 +43,31 @@ docker_connect () {
 	docker exec -it ${CONTAINER_NAME} /bin/bash
 }
 
+run_world () {
+	docker exec -it ${CONTAINER_NAME} sh -c "source ~/.bashrc ; /isaac-sim/python.sh /world/factory_world1/factory.py"
+}
+
+
 case "$1" in
-  run)
+  "run")
 	$FACTORY_BASE/at_factory/run_isaac_sim_docker.sh ;;
-  start)
+  "start")
 	docker start ${CONTAINER_NAME}
 	docker_connect
 	;;
-  con)
+  "con")
         docker_connect ;;
-  stop)
+  "stop")
 	stop_container ;;
-  rm)
+  "rm")
 	delete_container ;;
+  "world")
+        run_world ;;
+  "help"|"?"|"")
+	echo "at_factory docker control command"
+	echo "fct run: run at_factory docker (required at init time only)"
+	echo "fct start: start existing at_factory docker (isaac-sim-ws)"
+	echo "fct con: connect to the at_factory docker"
+	echo "fct stop: stopping the running at_factory docker"
+	echo "fct rm: rm the running at_factory docker"
 esac
