@@ -4,7 +4,7 @@
 
 This repository shows an example of an @factory application that runs using specific factory and robot definitions. At runtime, it consists of two docker containers: the @factory itself and an application with a Behavior Tree structure. The docker container (isaac-sim-ws, main docker container) that runs the @factory itself can be easily started with single command.
 
-The other docker, which runs applications (Application docker), is designed to be run by VSCode to make development easier.
+The other docker, which runs applications (application docker), is designed to be run by VSCode to make development easier.
 
 ## ◯ Installation
 The script you run will differ depending on whether you're installing docker for the first time or using an existing docker installation.
@@ -54,15 +54,18 @@ This will launch Isaac Sim and enable WebRTC connections. Specify the server's I
 
 ## ◯ Building the application docker
 
-Use a separate shell session on the server.
+Enter the following commands from server shell.
 
 ```
-cd factory/factory_app_1/build
-docker compose build
-docker compose up
+act build
+act run
 ```
 
-This will launch the application docker. From now on, attach it from VSCode and use it. Assume the current directory is /root.
+This will launch the application docker. 
+
+The "act" command has the ability to control the application docker in a similar way that the "fct" command controls the main docker. 
+
+From now on, attach it from VSCode and use it. Assume the current directory is /root.  
 
 From the VSCode terminal, execute the following command once:
 

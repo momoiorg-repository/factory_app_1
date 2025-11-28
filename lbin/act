@@ -1,0 +1,145 @@
+#! /bin/bash
+
+CONTAINER_NAME=${CONTAINER_NAME:-factory_app}
+
+stop_container() {
+	# コンテナが存在するかチェック
+	if ! docker ps -a --format "table {{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    	echo "❌ コンテナ ${CONTAINER_NAME} が見つかりません。"
+    	exit 1
+	fi
+
+	# コンテナが実行中かチェック
+	if docker ps --format "table {{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    		echo "🛑 コンテナ ${CONTAINER_NAME} を停止しています..."
+    		docker stop ${CONTAINER_NAME}
+
+    		if [ $? -eq 0 ]; then
+        		echo "✅ コンテナが停止されました。"
+    		else
+        		echo "❌ コンテナの停止に失敗しました。"
+        		exit 1
+    		fi
+	fi
+}
+
+delete_container() {
+	# コンテナを削除して完全初期化
+	echo "🗑️  コンテナ ${CONTAINER_NAME} を削除しています..."
+	docker rm ${CONTAINER_NAME}
+
+	if [ $? -eq 0 ]; then
+    		echo "✅ コンテナが削除され、完全に初期化されました。"
+    		echo ""
+    		echo "🚀 新しいコンテナを開始するには:"
+    		echo "   act run"
+	else
+    		echo "❌ コンテナの削除に失敗しました。"
+    		exit 1
+	fi
+}
+
+build_docker_image(){
+    if docker images | grep -q "factory_app.*latest"; then
+        echo "Dockerイメージ 'factory_app:latest' は既に存在します。"
+        read -p "再ビルドしますか？ (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "既存のイメージでコンテナを起動します..."
+            return
+        fi
+    fi
+
+    echo "Building Docker image..."
+    cd $FACTORY_BASE/factory_app_1
+    docker build -t factory_app:latest -f ./build/Dockerfile .
+
+    if docker images | grep -q "factory_app.*latest"; then
+        echo "Dockerイメージ 'factory_app:latest' は正常にビルドされました。"
+    else
+        echo "Dockerイメージ 'factory_app:latest' のビルドに失敗しました。"
+        exit 1
+    fi
+}
+
+run_docker_container(){
+    if [ -f .env ]; then
+        export $(grep -v '^#' .env | xargs)
+    fi
+
+    if docker ps -a --filter "name=^${CONTAINER_NAME}$" --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+        echo "Dockerコンテナ '${CONTAINER_NAME}' は既に作成されています。"
+        return
+    fi
+
+    echo "Dockerコンテナを起動します..."
+    docker run -d \
+        --name ${CONTAINER_NAME} \
+        --network host \
+        --ipc host \
+        -e DISPLAY=${DISPLAY} \
+        -e NVIDIA_VISIBLE_DEVICES=all \
+        -e NVIDIA_DRIVER_CAPABILITIES=all \
+        -e ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-80} \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+        -v $HOME/.Xauthority:/root/.Xauthority:ro \
+        -v $FACTORY_BASE/factory_app_1/pytwb_ws:/root/pytwb_ws:rw \
+        --gpus all \
+        --tty \
+        factory_app:latest \
+        tail -f /dev/null
+}
+
+connect_to_container(){
+  if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+  fi
+
+  if ! docker ps --filter "name=^${CONTAINER_NAME}$" --format "{{.Names}}" | grep -q "^${CONTAINER_NAME:-factory_app}$"; then
+    echo "Dockerコンテナ '${CONTAINER_NAME}' は起動していません。"
+    echo "コンテナを起動します..."
+    docker start ${CONTAINER_NAME}
+  fi
+
+  echo "Dockerコンテナ '${CONTAINER_NAME}' に接続します..."
+  docker exec -it ${CONTAINER_NAME} bash
+}
+
+comment(){
+    echo "================================"
+    echo "初めて実行する場合は以下を実行してください"
+    echo "$ cd pytwb_ws"
+    echo "$ pytwb"
+    echo "> create cm1"
+    echo "> Y"
+    echo "exit"
+    echo "================================"
+    echo "ActorやBTを実行する場合は、以下を実行してください"
+    echo "$ actor"
+    echo "================================"
+}
+
+case "$1" in
+  "build")
+  	build_docker_image ;;
+  "run")
+	run_docker_container ;;
+  "start")
+	docker start ${CONTAINER_NAME}
+        connect_to_container
+	;;
+  "con")
+        connect_to_container ;;
+  "stop")
+	stop_container ;;
+  "rm")
+	delete_container ;;
+  "help"|"?"|"")
+	echo "factory app docker control command"
+	echo "act build: build factory app docker image"
+	echo "act run: run factory_app docker (required at init time only)"
+	echo "act start: start existing factory_app docker (factory_app)"
+	echo "act con: connect to the factory_app docker"
+	echo "act stop: stopping the running factory_app docker"
+	echo "act rm: rm the running factory_app docker"
+esac
