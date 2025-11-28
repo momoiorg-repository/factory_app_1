@@ -1,6 +1,10 @@
 #! /bin/bash
 
-CONTAINER_NAME="isaac-sim-ws"
+if [ -f ~/.factory_env ]; then
+    export $(grep -v '^#' ~/.factory_env | xargs)
+fi
+
+CONTAINER_NAME=${FACTORY_MAIN_CONTAINER_NAME:-isaac-sim-ws}
 
 stop_container() {
 	# コンテナが存在するかチェック

@@ -1,6 +1,10 @@
 #! /bin/bash
 
-CONTAINER_NAME=${CONTAINER_NAME:-factory_app}
+if [ -f ~/.factory_env ]; then
+    export $(grep -v '^#' ~/.factory_env | xargs)
+fi
+
+CONTAINER_NAME=${FACTORY_APP_CONTAINER_NAME:-factory_app}
 
 stop_container() {
 	# コンテナが存在するかチェック
@@ -63,9 +67,6 @@ build_docker_image(){
 }
 
 run_docker_container(){
-    if [ -f .env ]; then
-        export $(grep -v '^#' .env | xargs)
-    fi
 
     if docker ps -a --filter "name=^${CONTAINER_NAME}$" --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
         echo "Dockerコンテナ '${CONTAINER_NAME}' は既に作成されています。"
