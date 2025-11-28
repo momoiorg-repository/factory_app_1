@@ -83,3 +83,11 @@ pytwb_ws/src/cm1/cm1/app_main.py
 ```
 
 from VSCode. If necessary, you can run the entire application program in debug mode by launching pytwb in debug mode.
+
+## ◯ Customization using environment variables
+
+You can create a .factory_env file in the working directory where you first cloned factory_app_1 to store the initial values ​​of environment variables. The relevant environment variables are:
+
+ROS_DOMAIN_ID: The ROS_DOMAIN_ID for ROS communication  
+FACTORY_MAIN_CONTAINER_NAME: The name of the main container  
+FACTORY_APP_CONTAINER_NAME: The name of the application container  
