@@ -1,1 +1,5 @@
-/isaac-sim/python.sh /world/factory_world1/factory.py
+if [ -v $CLOUD_IP ]; then
+    /isaac-sim/python.sh /world/factory_world1/factory.py --cloud $CLOUD_IP
+else
+    /isaac-sim/python.sh /world/factory_world1/factory.py
+fi
