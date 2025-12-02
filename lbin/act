@@ -1,6 +1,6 @@
 #! /bin/bash
 
-if [ -f ${FACTORY_BASE}/.factory_env ]; then
+if [ -f ${FACTORY_BASE}/.factory/.env ]; then
     export $(grep -v '^#' ${FACTORY_BASE}/.factory_env | xargs)
 fi
 
@@ -81,10 +81,11 @@ run_docker_container(){
         -e DISPLAY=${DISPLAY} \
         -e NVIDIA_VISIBLE_DEVICES=all \
         -e NVIDIA_DRIVER_CAPABILITIES=all \
-        -e ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-80} \
+        -e ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-31} \
         -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
         -v $HOME/.Xauthority:/root/.Xauthority:ro \
         -v $FACTORY_BASE/factory_app_1/pytwb_ws:/root/pytwb_ws:rw \
+        -v $FACTORY_BASE/config:/root/config:rw \
         --gpus all \
         --tty \
         factory_app:latest \
