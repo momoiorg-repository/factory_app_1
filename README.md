@@ -19,6 +19,7 @@ cd factory
 git clone https://github.com/momoiorg-repository/factory_app_1.git
 ./factory_app_1/init.sh
 ```
+(The working directory name "factory" can be rewritten arbitrarily.)
 
 This will build and start the main docker container, and a prompt from shell in the docker will appear.
 
