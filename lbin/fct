@@ -7,8 +7,7 @@ fi
 CONTAINER_NAME=${FACTORY_MAIN_CONTAINER_NAME:-isaac-sim-ws}
 
 run_main_container() {
-	# サーバのローカルXサーバーへのアクセスを許可
-	xhost +
+	cd ${FACTORY_BASE}/at_factory
 
 	# Set GUI performance environment variables
 	export QT_X11_NO_MITSHM=1
@@ -85,7 +84,7 @@ run_main_container() {
   		-v ~/Documents:/root/Documents:rw \
   		-v ./plugin/robot:/robot:rw \
   		-v ./plugin/world:/world:rw \
-        -v $FACTORY_BASE/config:/root/config:rw \
+                -v $FACTORY_BASE/config:/root/config:rw \
   		--entrypoint /bin/bash \
   		isaac_factory:latest \
   		-c "tail -f /dev/null"
@@ -157,7 +156,8 @@ run_world () {
 
 case "$1" in
   "run")
-		run_main_container ;;
+		run_main_container
+		;;
   "start")
 		docker start ${CONTAINER_NAME}
 		docker_connect
