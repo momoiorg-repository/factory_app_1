@@ -66,9 +66,28 @@ This will launch the application docker.
 
 The "act" command has the ability to control the application docker in a similar way that the "fct" command controls the main docker. 
 
+## ◯ Operations required each time Docker is started
+After starting docker, you must start the initial ROS-related functions.
+Since you are not connected to docker immediately after running act run, you must first execute
+
+```
+act con
+```
+
+to launch a shell within docker.
+If you are restarting docker rather than starting it first, the shell will launch automatically with act start.
+At this point, you must enter
+
+```
+rstart
+``` 
+
+to run nav2 and moveit2.
+
+## ◯ Application Development
 From now on, attach it from VSCode and use it. Assume the current directory is /root.  
 
-From the VSCode terminal, execute the following command once:
+From the VSCode terminal, execute the following command once after intallation:
 
 ```
 cd pytwb_ws
