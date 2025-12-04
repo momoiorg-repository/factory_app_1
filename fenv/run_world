@@ -1,5 +1,9 @@
+if [ -f ${FACTORY_BASE}/config/.env ]; then
+    export $(grep -v '^#' ${FACTORY_BASE}/config/.env | xargs)
+fi
+
 if [ -v CLOUD_IP ]; then
-    /isaac-sim/python.sh /world/factory_world1/factory.py --cloud $CLOUD_IP
+    /isaac-sim/python.sh /world/factory_world1/factory.py --cloud --ip $CLOUD_IP
 else
     /isaac-sim/python.sh /world/factory_world1/factory.py
 fi

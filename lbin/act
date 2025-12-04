@@ -1,7 +1,7 @@
 #! /bin/bash
 
-if [ -f ${FACTORY_BASE}/.factory/.env ]; then
-    export $(grep -v '^#' ${FACTORY_BASE}/.factory_env | xargs)
+if [ -f ${FACTORY_BASE}/config/.env ]; then
+    export $(grep -v '^#' ${FACTORY_BASE}/config/.env | xargs)
 fi
 
 CONTAINER_NAME=${FACTORY_APP_CONTAINER_NAME:-factory_app}
