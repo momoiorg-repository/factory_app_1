@@ -56,7 +56,11 @@ build_docker_image(){
 
     echo "Building Docker image..."
     cd $FACTORY_BASE/factory_app_1
-    docker build -t factory_app:latest -f ./build/Dockerfile .
+    docker build -t factory_app_base:latest -f ./build/Dockerfile .
+
+    cd robot
+    git clone https://github.com/momoiorg-repository/melon_ros2.git
+    docker build -t factory_app:latest -f ./Dockerfile .
 
     if docker images | grep -q "factory_app.*latest"; then
         echo "Dockerイメージ 'factory_app:latest' は正常にビルドされました。"
@@ -107,6 +111,10 @@ connect_to_container(){
   docker exec -it ${CONTAINER_NAME} bash
 }
 
+run_ros() {
+  docker exec -it ${CONTAINER_NAME} rstart
+}
+
 comment(){
     echo "================================"
     echo "初めて実行する場合は以下を実行してください"
@@ -123,19 +131,21 @@ comment(){
 
 case "$1" in
   "build")
-  	build_docker_image ;;
+  	  build_docker_image ;;
   "run")
-	run_docker_container ;;
+	    run_docker_container ;;
   "start")
 	docker start ${CONTAINER_NAME}
-        connect_to_container
+      connect_to_container
 	;;
   "con")
-        connect_to_container ;;
+      connect_to_container ;;
   "stop")
-	stop_container ;;
+	    stop_container ;;
   "rm")
-	delete_container ;;
+	    delete_container ;;
+  "ros")
+      run_ros ;;
   "help"|"?"|"")
 	echo "factory app docker control command"
 	echo "act build: build factory app docker image"
