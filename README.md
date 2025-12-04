@@ -51,6 +51,12 @@ With the main Docker container shell prompt displayed, execute the command to la
 run_world
 ```
 
+If your server is in the cloud and is portmapped (e.g. Brev), run
+
+```
+run_world --cloud <server side endpoint IP>
+```
+
 This will launch Isaac Sim and enable WebRTC connections. Specify the server's IP address to connect.
 
 ## ◯ Building the application docker
