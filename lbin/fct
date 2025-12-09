@@ -84,7 +84,7 @@ run_main_container() {
   		-v ~/Documents:/root/Documents:rw \
   		-v ./plugin/robot:/robot:rw \
   		-v ./plugin/world:/world:rw \
-                -v $FACTORY_BASE/config:/root/config:rw \
+        -v $FACTORY_BASE/config:/root/config:rw \
   		--entrypoint /bin/bash \
   		isaac_factory:latest \
   		-c "tail -f /dev/null"
@@ -106,6 +106,8 @@ run_main_container() {
     	echo "❌ コンテナの起動に失敗しました。"
     	exit 1
 	fi
+
+	docker cp ../factory_app_1/fenv/run_world isaac-sim-ws:/usr/local/bin/run_world
 }
 
 stop_container() {
